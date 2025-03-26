@@ -1,0 +1,22 @@
+version: "3.4"
+
+services:
+  chat-tts-api:
+    image: chat-tts-api-gpu:latest
+    container_name: chat-tts-api
+    build:
+      context: .
+      dockerfile: Dockerfile.gpu
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - TTS_DEVICE=gpu
+      - HF_ENDPOINT=https://hf-mirror.com
+      - HF_HOME=/app/huggingface
+    ports:
+      - "11400:9000"

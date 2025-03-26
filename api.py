@@ -45,10 +45,14 @@ app = FastAPI()
 @app.on_event("startup")
 async def startup_event():
     global chat
+    env = os.getenv("TTS_DEVICE")
+    device = None
+    if env in ["npu", "cpu"]:
+        device = torch.device(env)
 
     chat = ChatTTS.Chat(get_logger("ChatTTS"))
     logger.info("Initializing ChatTTS...")
-    if chat.load():
+    if chat.load(device=device, source="huggingface"):
         logger.info("Models loaded successfully.")
     else:
         logger.error("Models load failed.")
@@ -147,7 +151,7 @@ async def generate_speech(params: ChatTTSParams):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", type=str, default="0.0.0.0")
-    parser.add_argument("--port", type=int, default=7006)
+    parser.add_argument("--port", type=int, default=9000)
     args = parser.parse_args()
 
     uvicorn.run(app, host=args.host, port=args.port)

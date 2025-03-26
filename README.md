@@ -44,6 +44,16 @@ uv sync --upgrade
 source .venv/bin/activate
 ```
 
+#### 2. Install from Docker
+- running by cpu
+```bash
+docker-compose up -d
+```
+- running by gpu
+```bash
+docker-compose -f docker-compose.gpu.yaml up -d
+```
+
 ### Quick Start
 > Make sure you are under the project root directory when you execute these commands below.
 

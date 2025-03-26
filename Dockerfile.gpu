@@ -1,0 +1,33 @@
+
+FROM nvidia/cuda:12.6.3-cudnn-runtime-ubuntu22.04
+
+ENV PYTHON_VERSION=3.12
+
+ENV POETRY_VENV=/app/.venv
+
+RUN export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -qq update \
+    && apt-get -qq install --no-install-recommends \
+    python${PYTHON_VERSION} \
+    python${PYTHON_VERSION}-venv \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ln -s -f /usr/bin/python${PYTHON_VERSION} /usr/bin/python3 && \
+    ln -s -f /usr/bin/python${PYTHON_VERSION} /usr/bin/python && \
+    ln -s -f /usr/bin/pip3 /usr/bin/pip
+
+RUN pip install uv -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+ENV PATH="${PATH}:/app/bin"
+
+WORKDIR /app
+
+COPY . .
+
+RUN --mount=type=cache,target=/root/.cache/uv,id=uv-repo \
+    uv sync --extra cu126
+
+EXPOSE 9000
+
+CMD ["uv","run","--extra","cu126","api.py"]
